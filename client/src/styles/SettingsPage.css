@@ -1,0 +1,405 @@
+.settings-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.settings-container h1 {
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 28px;
+}
+
+/* TABS */
+.settings-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.tab-btn {
+  padding: 12px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #666;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+
+.tab-btn:hover {
+  color: #333;
+  border-bottom-color: #ddd;
+}
+
+.tab-btn.active {
+  color: #4CAF50;
+  border-bottom-color: #4CAF50;
+}
+
+/* CONTENT */
+.settings-content {
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settings-content h2 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 22px;
+}
+
+.settings-content h3 {
+  margin-top: 25px;
+  margin-bottom: 15px;
+  color: #555;
+  font-size: 18px;
+}
+
+.settings-description {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+/* BACKUP SECTION */
+.backup-section {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.backup-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #4CAF50;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.btn-secondary {
+  background: #2196F3;
+  color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #0b7dda;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+}
+
+.btn-success {
+  background: #4CAF50;
+  color: white;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: #45a049;
+}
+
+.btn-danger {
+  background: #f44336;
+  color: white;
+  width: 100%;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #da190b;
+}
+
+.backup-tips {
+  background: #e8f5e9;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid #4CAF50;
+}
+
+.backup-tips h4 {
+  margin: 0 0 10px 0;
+  color: #2e7d32;
+}
+
+.backup-tips ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.backup-tips li {
+  margin-bottom: 8px;
+  color: #333;
+  line-height: 1.5;
+}
+
+/* STORAGE SECTION */
+.storage-status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.storage-info-card,
+.storage-breakdown {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.status-indicator {
+  font-size: 36px;
+  font-weight: bold;
+  text-align: center;
+  margin: 15px 0;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.status-indicator.status-safe {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-indicator.status-warning {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.status-indicator.status-critical {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.storage-details {
+  font-size: 14px;
+  color: #666;
+}
+
+.storage-details p {
+  margin: 8px 0;
+}
+
+.storage-bar {
+  width: 100%;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 15px;
+}
+
+.storage-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #45a049);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.storage-warning {
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.storage-warning.warning {
+  background: #fff3e0;
+  border-left-color: #f57c00;
+  color: #e65100;
+}
+
+.storage-warning.critical {
+  background: #ffebee;
+  border-left-color: #c62828;
+  color: #b71c1c;
+}
+
+/* ARCHIVE SECTION */
+.archive-section {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.archive-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.archive-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.archive-form input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 200px;
+}
+
+.archive-form input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
+}
+
+.archive-ready {
+  background: #e8f5e9;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid #4CAF50;
+}
+
+.archive-ready p {
+  margin: 0 0 15px 0;
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+/* STORAGE TIPS */
+.storage-tips {
+  background: #e3f2fd;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid #2196F3;
+}
+
+.storage-tips h3,
+.backup-tips h3 {
+  margin-top: 0;
+  color: #1565c0;
+}
+
+.storage-tips ul,
+.backup-tips ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.storage-tips li,
+.backup-tips li {
+  margin-bottom: 8px;
+  color: #333;
+  line-height: 1.5;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .settings-container {
+    padding: 15px;
+  }
+
+  .settings-container h1 {
+    font-size: 24px;
+  }
+
+  .settings-tabs {
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 10px 15px;
+    font-size: 14px;
+  }
+
+  .backup-buttons {
+    flex-direction: column;
+  }
+
+  .backup-buttons .btn {
+    width: 100%;
+  }
+
+  .storage-status {
+    grid-template-columns: 1fr;
+  }
+
+  .archive-form {
+    flex-direction: column;
+  }
+
+  .archive-form input {
+    width: 100%;
+  }
+
+  .archive-form .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-container {
+    padding: 10px;
+  }
+
+  .settings-content h2 {
+    font-size: 18px;
+  }
+
+  .settings-content h3 {
+    font-size: 16px;
+  }
+
+  .tab-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .status-indicator {
+    font-size: 28px;
+  }
+
+  .storage-info-card,
+  .storage-breakdown {
+    padding: 15px;
+  }
+}

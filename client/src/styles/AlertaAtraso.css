@@ -1,0 +1,82 @@
+.alerta-atraso {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+  border-bottom: 2px solid #e53935;
+  padding: 1rem;
+  margin: -1rem -1rem 1rem -1rem;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.2);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alerta-conteudo {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.alerta-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.alerta-texto {
+  flex: 1;
+  color: #c62828;
+}
+
+.alerta-texto strong {
+  color: #b71c1c;
+  font-size: 1rem;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.alerta-texto p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #d32f2f;
+}
+
+.alerta-close {
+  background: none;
+  border: none;
+  color: #c62828;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  transition: color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.alerta-close:hover {
+  color: #b71c1c;
+}
+
+/* Estilo para o ícone de aviso discreto na tabela */
+.aviso-vencida {
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+  cursor: help;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.aviso-vencida:hover {
+  opacity: 1;
+}

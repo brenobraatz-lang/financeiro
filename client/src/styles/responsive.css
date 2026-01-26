@@ -1,0 +1,183 @@
+/* Responsividade Mobile-First */
+
+@media (max-width: 768px) {
+  /* Header */
+  .page-header {
+    padding: 1rem !important;
+  }
+
+  .page-header h1 {
+    font-size: 24px !important;
+  }
+
+  /* Containers */
+  div[style*="maxWidth: '1200px'"],
+  div[style*="maxWidth: '1400px'"] {
+    padding: 1rem !important;
+  }
+
+  /* Grids - mudar para 1 coluna */
+  div[style*="gridTemplateColumns: 'repeat"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Tabelas - fazer scroll horizontal */
+  table {
+    font-size: 12px;
+    display: block;
+    overflow-x: auto;
+  }
+
+  table th,
+  table td {
+    padding: 0.75rem 0.5rem !important;
+    font-size: 12px;
+  }
+
+  /* Buttons */
+  button {
+    font-size: 12px !important;
+    padding: 0.4rem 0.6rem !important;
+  }
+
+  /* Filtros - uma por linha */
+  div[style*="display: 'flex'"][style*="flexWrap: 'wrap'"] {
+    flex-direction: column !important;
+  }
+
+  div[style*="display: 'flex'"][style*="flexDirection: 'column'"] {
+    width: 100%;
+  }
+
+  select, input {
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  /* Cards */
+  div[style*="background: '#f"] {
+    padding: 1rem !important;
+  }
+
+  h1 {
+    font-size: 24px !important;
+  }
+
+  h2 {
+    font-size: 20px !important;
+  }
+
+  h3 {
+    font-size: 18px !important;
+  }
+
+  /* Modal */
+  div[style*="maxWidth: '600px'"] {
+    width: 95% !important;
+    max-width: 95% !important;
+  }
+
+  /* Paginação */
+  div[style*="display: 'flex'"][style*="justifyContent: 'center'"][style*="gap: '0.5rem'"] {
+    flex-wrap: wrap;
+    gap: 0.25rem !important;
+  }
+
+  /* Charts - tornar menores */
+  div[style*="ResponsiveContainer"] {
+    height: 200px !important;
+  }
+
+  /* Status badges */
+  span[style*="padding: '0.25rem"] {
+    font-size: 11px !important;
+    padding: 0.2rem 0.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: 20px !important;
+  }
+
+  h2 {
+    font-size: 16px !important;
+  }
+
+  button {
+    width: 100%;
+    margin: 0.25rem 0 !important;
+  }
+
+  table {
+    font-size: 11px;
+  }
+
+  table th,
+  table td {
+    padding: 0.5rem 0.25rem !important;
+  }
+
+  .page-header {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  div[style*="display: 'flex'"][style*="justifyContent: 'space-between'"] {
+    flex-direction: column !important;
+  }
+}
+
+/* Layout geral responsivo */
+.despesas-page,
+.caixa-page,
+.relatorios-page,
+.dashboard-page {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Navbar responsivo */
+nav {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+nav a {
+  white-space: nowrap;
+}
+
+/* Input fields responsivos */
+input[type="text"],
+input[type="date"],
+input[type="number"],
+select {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* Flexbox responsivo padrão */
+@media (max-width: 768px) {
+  .flex-container {
+    flex-direction: column;
+  }
+
+  .grid-2-col {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}

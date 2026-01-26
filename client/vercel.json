@@ -1,0 +1,16 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "devCommand": "npm run dev",
+  "installCommand": "npm ci",
+  "env": [
+    {
+      "key": "VITE_SUPABASE_URL",
+      "value": "@supabase_url"
+    },
+    {
+      "key": "VITE_SUPABASE_ANON_KEY",
+      "value": "@supabase_anon_key"
+    }
+  ]
+}
