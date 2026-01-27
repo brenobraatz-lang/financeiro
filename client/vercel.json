@@ -3,14 +3,10 @@
   "outputDirectory": "dist",
   "devCommand": "npm run dev",
   "installCommand": "npm ci",
-  "env": [
+  "rewrites": [
     {
-      "key": "VITE_SUPABASE_URL",
-      "value": "@supabase_url"
-    },
-    {
-      "key": "VITE_SUPABASE_ANON_KEY",
-      "value": "@supabase_anon_key"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
