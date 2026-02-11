@@ -16,6 +16,7 @@ export default function CaixaPage() {
   const [mes, setMes] = useState(hoje.getMonth() + 1);
   const [ano, setAno] = useState(hoje.getFullYear());
   const [entradas, setEntradas] = useState<EntradaCaixa[]>([]);
+  void entradas;
   const [movimentacoes, setMovimentacoes] = useState<any[]>([]);
   const [caixa, setCaixa] = useState<CaixaMensal | null>(null);
   const [loading, setLoading] = useState(true);

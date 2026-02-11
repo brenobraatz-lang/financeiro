@@ -1,7 +1,7 @@
 export enum TipoEmpresa {
   PESSOA_FISICA = 'PESSOA_FISICA',
   PESSOA_JURIDICA = 'PESSOA_JURIDICA',
-  DINHEIRO = 'DINHEIRO'
+  
 }
 
 export enum TipoDespesa {
@@ -27,6 +27,7 @@ export enum FormaPagamento {
   PIX = 'PIX',
   BOLETO = 'BOLETO',
   CARTAO = 'CARTAO'
+  ,DINHEIRO = 'DINHEIRO'
 }
 
 export const BANCOS_FIXOS = [
