@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { EntradaCaixa, CaixaMensal } from '../types/Despesa';
 import { caixaService } from '../services/caixaService';
+import { despesaService } from '../services/api';
+import { despesasService } from '../services/despesasService';
 import { useAuth } from '../contexts/AuthContext';
 import FormEntradaCaixa from '../components/FormEntradaCaixa';
+import FormDespesa from '../components/FormDespesa';
 import { socketService } from '../services/socket';
 import { pageStyles } from '../styles/pageLayout';
 
@@ -13,11 +16,14 @@ export default function CaixaPage() {
   const [mes, setMes] = useState(hoje.getMonth() + 1);
   const [ano, setAno] = useState(hoje.getFullYear());
   const [entradas, setEntradas] = useState<EntradaCaixa[]>([]);
+  const [movimentacoes, setMovimentacoes] = useState<any[]>([]);
   const [caixa, setCaixa] = useState<CaixaMensal | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingEntrada, setEditingEntrada] = useState<EntradaCaixa | undefined>();
+  const [showDespesaForm, setShowDespesaForm] = useState(false);
+  const [editingDespesa, setEditingDespesa] = useState<any | undefined>();
   const [paginaAtual, setPaginaAtual] = useState(1);
   const itensPorPagina = 10;
 
@@ -62,6 +68,20 @@ export default function CaixaPage() {
         caixaService.listEntradas(mesLeitura, ano),
         caixaService.getCaixaMensal(mesLeitura, ano)
       ]);
+      // Buscar despesas pagas em dinheiro para mostrar como saídas nas movimentações
+      // Buscar despesas via o mesmo serviço usado na página de Despesas (Supabase)
+      let despesasDinheiro: any[] = [];
+      try {
+        const todas = await despesasService.list();
+        // Filtrar por mês/ano e por DINHEIRO + PAGA
+        despesasDinheiro = todas.filter(d => {
+          const [anoD, mesD] = d.data.split('-');
+          return parseInt(mesD) === mesLeitura && parseInt(anoD) === ano && d.formaPagamento === 'DINHEIRO' && d.statusPagamento === 'PAGA';
+        });
+      } catch (e) {
+        console.warn('Não foi possível buscar despesas via despesasService:', e);
+        despesasDinheiro = [];
+      }
       
       // Se anual, filtrar por ano
       let entradasFiltradas = entradasData;
@@ -82,6 +102,40 @@ export default function CaixaPage() {
       }
       
       setEntradas(entradasFiltradas);
+      // Construir lista de movimentações mesclando entradas (+) e despesas em dinheiro (-)
+      const movimentacoesLista: any[] = [];
+      entradasFiltradas.forEach(e => movimentacoesLista.push({
+        id: `e-${e.id}`,
+        data: e.data,
+        descricao: e.descricao,
+        valor: e.valor,
+        tipo: 'entrada'
+      }));
+
+      despesasDinheiro.forEach(d => movimentacoesLista.push({
+        id: `d-${d.id}`,
+        data: d.data,
+        descricao: d.descricao,
+        valor: -Math.abs(d.valor),
+        tipo: 'saida',
+        orig: d
+      }));
+
+      // Ordenar por data desc, depois id desc
+      movimentacoesLista.sort((a, b) => {
+        if (a.data === b.data) return (b.id > a.id ? 1 : -1);
+        return a.data < b.data ? 1 : -1;
+      });
+
+      setMovimentacoes(movimentacoesLista);
+      // Atualizar caixa: calcular saídas a partir das despesas em dinheiro carregadas
+      const totalSaidasLocal = despesasDinheiro.reduce((s: number, d: any) => s + (Number(d.valor) || 0), 0);
+      caixaAcumulado = {
+        ...(caixaAcumulado || { mes: mesLeitura, ano, entradas: 0, saidas: 0, saldo: 0, entradasDetalhadas: [] }),
+        saidas: Math.abs(totalSaidasLocal),
+        saldo: (caixaAcumulado?.entradas || 0) - Math.abs(totalSaidasLocal)
+      } as CaixaMensal;
+
       setCaixa(caixaAcumulado);
     } catch (err) {
       const mensagem = err instanceof Error ? err.message : 'Erro ao carregar dados';
@@ -94,8 +148,8 @@ export default function CaixaPage() {
 
   const indiceInicio = (paginaAtual - 1) * itensPorPagina;
   const indiceFim = indiceInicio + itensPorPagina;
-  const entradasPaginadas = entradas.slice(indiceInicio, indiceFim);
-  const totalPaginas = Math.ceil(entradas.length / itensPorPagina);
+  const entradasPaginadas = movimentacoes.slice(indiceInicio, indiceFim);
+  const totalPaginas = Math.max(1, Math.ceil(movimentacoes.length / itensPorPagina));
 
   const handleAddEntrada = async (entrada: Omit<EntradaCaixa, 'id' | 'createdAt' | 'updatedAt' | 'mes' | 'ano'>) => {
     try {
@@ -301,6 +355,63 @@ export default function CaixaPage() {
             </div>
           </div>
         )}
+        {showDespesaForm && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              background: 'white',
+              border: '1px solid #ddd',
+              padding: '2rem',
+              borderRadius: '8px',
+              maxWidth: '800px',
+              width: '95%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <h2 style={{ margin: 0, color: '#333' }}>
+                  {editingDespesa ? 'Editar Despesa' : 'Nova Despesa'}
+                </h2>
+                <button
+                  onClick={() => { setShowDespesaForm(false); setEditingDespesa(undefined); }}
+                  style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', padding: 0, color: '#999' }}
+                >
+                  ✕
+                </button>
+              </div>
+              <FormDespesa
+                despesa={editingDespesa}
+                onSubmit={async (dados) => {
+                  try {
+                    if (editingDespesa && editingDespesa.id) {
+                      await despesaService.update(editingDespesa.id, dados);
+                    } else {
+                      await despesaService.create(dados as any);
+                    }
+                    setShowDespesaForm(false);
+                    setEditingDespesa(undefined);
+                    loadDados();
+                  } catch (err) {
+                    console.error('Erro ao salvar despesa:', err);
+                    setError('Erro ao salvar despesa');
+                  }
+                }}
+                onCancel={() => { setShowDespesaForm(false); setEditingDespesa(undefined); }}
+              />
+            </div>
+          </div>
+        )}
         {/* Loading */}
         {loading && !showForm && (
           <div style={{
@@ -379,7 +490,7 @@ export default function CaixaPage() {
         )}
 
         {/* Lista de Entradas */}
-        {!loading && entradas.length === 0 && !error && (
+        {!loading && movimentacoes.length === 0 && !error && (
           <div style={{
             background: '#f0f9ff',
             border: '1px solid #bfdbfe',
@@ -388,15 +499,15 @@ export default function CaixaPage() {
             textAlign: 'center'
           }}>
             <p style={{ color: '#666' }}>
-              Nenhuma entrada registrada neste período.
+              Nenhuma movimentação registrada neste período.
             </p>
           </div>
         )}
 
-        {!loading && entradas.length > 0 && (
+        {!loading && movimentacoes.length > 0 && (
           <div>
             <h3 style={{ color: '#333', marginBottom: '1rem' }}>
-              Movimentações ({entradas.length})
+              Movimentações ({movimentacoes.length})
             </h3>
             <table style={{
               width: '100%',
@@ -415,49 +526,106 @@ export default function CaixaPage() {
                 </tr>
               </thead>
               <tbody>
-                {entradasPaginadas.map((entrada) => (
+                {entradasPaginadas.map((mov) => (
                   <tr 
-                    key={entrada.id} 
+                    key={mov.id} 
                     style={{ borderBottom: '1px solid #eee' }}
                   >
-                    <td style={{ padding: '1rem' }}>{entrada.data}</td>
-                    <td style={{ padding: '1rem' }}>{entrada.descricao}</td>
-                    <td style={{ padding: '1rem', fontWeight: 'bold', color: 'green' }}>
-                      +R$ {entrada.valor.toFixed(2).replace('.', ',')}
+                    <td style={{ padding: '1rem' }}>{mov.data}</td>
+                    <td style={{ padding: '1rem' }}>{mov.descricao}</td>
+                    <td style={{ padding: '1rem', fontWeight: 'bold', color: mov.tipo === 'entrada' ? 'green' : '#721c24' }}>
+                      {mov.tipo === 'entrada' ? '+' : '-'}R$ {Math.abs(mov.valor).toFixed(2).replace('.', ',')}
                     </td>
                     <td style={{ padding: '1rem' }}>
-                      <button
-                        onClick={() => {
-                          setEditingEntrada(entrada);
-                          setShowForm(true);
-                        }}
-                        style={{
-                          padding: '0.25rem 0.5rem',
-                          marginRight: '0.5rem',
-                          background: '#007bff',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '3px',
-                          cursor: 'pointer',
-                          fontSize: '12px'
-                        }}
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => entrada.id && handleDeleteEntrada(entrada.id)}
-                        style={{
-                          padding: '0.25rem 0.5rem',
-                          background: '#dc3545',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '3px',
-                          cursor: 'pointer',
-                          fontSize: '12px'
-                        }}
-                      >
-                        Deletar
-                      </button>
+                      {mov.tipo === 'entrada' ? (
+                        <>
+                          <button
+                            onClick={() => {
+                              setEditingEntrada({ id: Number(String(mov.id).replace('e-','')), valor: mov.valor, data: mov.data, descricao: mov.descricao } as any);
+                              setShowForm(true);
+                            }}
+                            style={{
+                              padding: '0.25rem 0.5rem',
+                              marginRight: '0.5rem',
+                              background: '#007bff',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '3px',
+                              cursor: 'pointer',
+                              fontSize: '12px'
+                            }}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => {
+                              const idNum = Number(String(mov.id).replace('e-',''));
+                              idNum && handleDeleteEntrada(idNum);
+                            }}
+                            style={{
+                              padding: '0.25rem 0.5rem',
+                              background: '#dc3545',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '3px',
+                              cursor: 'pointer',
+                              fontSize: '12px'
+                            }}
+                          >
+                            Deletar
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={async () => {
+                              // abrir modal de edição de despesa
+                              try {
+                                setEditingDespesa(mov.orig);
+                                setShowDespesaForm(true);
+                              } catch (err) {
+                                console.error('Erro ao abrir edição de despesa:', err);
+                              }
+                            }}
+                            style={{
+                              padding: '0.25rem 0.5rem',
+                              marginRight: '0.5rem',
+                              background: '#007bff',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '3px',
+                              cursor: 'pointer',
+                              fontSize: '12px'
+                            }}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={async () => {
+                              if (!mov.orig || !mov.orig.id) return;
+                              if (!confirm('Tem certeza que deseja deletar esta despesa?')) return;
+                              try {
+                                await despesaService.delete(mov.orig.id);
+                                loadDados();
+                              } catch (err) {
+                                console.error('Erro ao deletar despesa:', err);
+                                setError('Erro ao deletar despesa');
+                              }
+                            }}
+                            style={{
+                              padding: '0.25rem 0.5rem',
+                              background: '#dc3545',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '3px',
+                              cursor: 'pointer',
+                              fontSize: '12px'
+                            }}
+                          >
+                            Deletar
+                          </button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -528,7 +696,7 @@ export default function CaixaPage() {
                 color: '#666',
                 fontSize: '14px'
               }}>
-                Página {paginaAtual} de {totalPaginas} ({entradas.length} total)
+                Página {paginaAtual} de {totalPaginas} ({movimentacoes.length} total)
               </span>
             </div>
           </div>

@@ -9,12 +9,19 @@ export const caixaService = {
   // Listar entradas de um período
   async listEntradas(mes: number, ano: number): Promise<EntradaCaixa[]> {
     try {
+      console.log('[caixaService] GET', `${API_URL}/caixa/entradas`, { mes, ano });
       const response = await axios.get(`${API_URL}/caixa/entradas`, {
         params: { mes, ano }
       });
+      console.log('[caixaService] response', response.status, response.config?.url);
       return response.data;
     } catch (error) {
-      console.error('Erro ao listar entradas de caixa:', error);
+      console.error('Erro ao listar entradas de caixa:', {
+        message: (error as any)?.message,
+        status: (error as any)?.response?.status,
+        data: (error as any)?.response?.data,
+        url: (error as any)?.config?.url
+      });
       throw error;
     }
   },
@@ -22,12 +29,19 @@ export const caixaService = {
   // Obter caixa mensal completo
   async getCaixaMensal(mes: number, ano: number): Promise<CaixaMensal> {
     try {
+      console.log('[caixaService] GET', `${API_URL}/caixa/mensal`, { mes, ano });
       const response = await axios.get(`${API_URL}/caixa/mensal`, {
         params: { mes, ano }
       });
+      console.log('[caixaService] response', response.status, response.config?.url);
       return response.data;
     } catch (error) {
-      console.error('Erro ao obter caixa mensal:', error);
+      console.error('Erro ao obter caixa mensal:', {
+        message: (error as any)?.message,
+        status: (error as any)?.response?.status,
+        data: (error as any)?.response?.data,
+        url: (error as any)?.config?.url
+      });
       throw error;
     }
   },

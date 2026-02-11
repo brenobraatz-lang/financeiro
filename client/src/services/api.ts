@@ -1,7 +1,16 @@
 import axios from 'axios';
 import { Despesa, FiltroDespesa, RelatorioMensal, EntradaCaixa, CaixaMensal } from '../types/Despesa';
 
-const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001/api';
+// Normalize VITE_API_URL: ensure it always points to the API root including '/api'
+let API_URL = (import.meta as any).env?.VITE_API_URL as string | undefined;
+if (!API_URL) {
+  API_URL = 'http://localhost:3001/api';
+} else {
+  API_URL = API_URL.replace(/\/+$/, '');
+  if (!API_URL.endsWith('/api')) {
+    API_URL = API_URL + '/api';
+  }
+}
 
 const api = axios.create({
   baseURL: API_URL,
