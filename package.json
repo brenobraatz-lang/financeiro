@@ -9,7 +9,7 @@
     "dev:client": "cd client && npm run dev",
     "build": "npm run build:server && npm run build:client",
     "build:server": "tsc",
-    "build:client": "cd client && npm run build",
+    "build:client": "cd client && npm ci && npm run build",
     "start": "node dist/server.js",
     "init:db": "ts-node --transpile-only src/database/init.ts",
     "migrate:db": "ts-node --transpile-only src/database/migrate.ts"
