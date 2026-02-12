@@ -7,6 +7,12 @@ class SocketService {
   connect(): Socket {
     if (this.socket?.connected) return this.socket;
 
+    // Em produção (Vercel), não temos backend Socket.IO, então retornar null socket
+    if (import.meta.env.PROD && !import.meta.env.VITE_SOCKET_URL) {
+      console.log('⚠️  Socket.IO desabilidado em produção (sem backend)');
+      return this.socket as any;
+    }
+
     // Prefer explicit VITE_SOCKET_URL, otherwise use same-origin (preserves https/wss)
     const envSocket = (import.meta as any).env?.VITE_SOCKET_URL as string | undefined;
     const serverUrl = envSocket ? envSocket.replace(/\/+$/, '') : `${window.location.origin}`;
