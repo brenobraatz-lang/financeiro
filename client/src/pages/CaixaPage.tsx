@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { EntradaCaixa, CaixaMensal } from '../types/Despesa';
-import { caixaService } from '../services/caixaService';
-import { despesaService } from '../services/api';
-import { despesasService } from '../services/despesasService';
+import { caixaService, despesaService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import FormEntradaCaixa from '../components/FormEntradaCaixa';
 import FormDespesa from '../components/FormDespesa';
