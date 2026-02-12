@@ -2,17 +2,12 @@
   "version": 2,
   "builds": [
     {
-      "src": "client/package.json",
+      "src": "package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "config": {
+        "distDir": "client/dist",
+        "buildCommand": "npm run build:client"
+      }
     }
-  ]
-  ,
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/assets/(.*)", "dest": "/cliente/ativos/$1" },
-    { "src": "/logo.webp", "dest": "/cliente/logo.webp" },
-    { "src": "/vite.svg", "dest": "/cliente/vite.svg" },
-    { "src": "/(.*)", "dest": "/cliente/index.html" }
   ]
 }
