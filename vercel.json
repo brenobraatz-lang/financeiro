@@ -7,4 +7,12 @@
       "config": { "distDir": "dist" }
     }
   ]
+  ,
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/assets/(.*)", "dest": "/cliente/ativos/$1" },
+    { "src": "/logo.webp", "dest": "/cliente/logo.webp" },
+    { "src": "/vite.svg", "dest": "/cliente/vite.svg" },
+    { "src": "/(.*)", "dest": "/cliente/index.html" }
+  ]
 }
