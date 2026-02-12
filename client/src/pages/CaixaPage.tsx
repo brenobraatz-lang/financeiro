@@ -71,14 +71,14 @@ export default function CaixaPage() {
       // Buscar despesas via o mesmo serviço usado na página de Despesas (Supabase)
       let despesasDinheiro: any[] = [];
       try {
-        const todas = await despesasService.list();
+        const todas = await despesaService.list();
         // Filtrar por mês/ano e por DINHEIRO + PAGA
         despesasDinheiro = todas.filter(d => {
           const [anoD, mesD] = d.data.split('-');
           return parseInt(mesD) === mesLeitura && parseInt(anoD) === ano && d.formaPagamento === 'DINHEIRO' && d.statusPagamento === 'PAGA';
         });
       } catch (e) {
-        console.warn('Não foi possível buscar despesas via despesasService:', e);
+        console.warn('Não foi possível buscar despesas via despesaService:', e);
         despesasDinheiro = [];
       }
       
@@ -95,8 +95,8 @@ export default function CaixaPage() {
         const entradaAnual = entradasFiltradas.reduce((sum, e) => sum + e.valor, 0);
         caixaAcumulado = {
           ...caixaData,
-          entradas: entradaAnual,
-          saldo: entradaAnual - caixaData.saidas
+          totalEntradas: entradaAnual,
+          saldo: entradaAnual - caixaData.totalDespesas
         };
       }
       
@@ -130,9 +130,9 @@ export default function CaixaPage() {
       // Atualizar caixa: calcular saídas a partir das despesas em dinheiro carregadas
       const totalSaidasLocal = despesasDinheiro.reduce((s: number, d: any) => s + (Number(d.valor) || 0), 0);
       caixaAcumulado = {
-        ...(caixaAcumulado || { mes: mesLeitura, ano, entradas: 0, saidas: 0, saldo: 0, entradasDetalhadas: [] }),
-        saidas: Math.abs(totalSaidasLocal),
-        saldo: (caixaAcumulado?.entradas || 0) - Math.abs(totalSaidasLocal)
+        ...(caixaAcumulado || { mes: mesLeitura, ano, totalEntradas: 0, totalDespesas: 0, saldo: 0 }),
+        totalDespesas: Math.abs(totalSaidasLocal),
+        saldo: (caixaAcumulado?.totalEntradas || 0) - Math.abs(totalSaidasLocal)
       } as CaixaMensal;
 
       setCaixa(caixaAcumulado);
@@ -447,7 +447,7 @@ export default function CaixaPage() {
                   color: '#155724',
                   margin: '0'
                 }}>
-                  R$ {caixa.entradas.toFixed(2).replace('.', ',')}
+                  R$ {caixa.totalEntradas.toFixed(2).replace('.', ',')}
                 </p>
               </div>
 
@@ -464,7 +464,7 @@ export default function CaixaPage() {
                   color: '#721c24',
                   margin: '0'
                 }}>
-                  R$ {caixa.saidas.toFixed(2).replace('.', ',')}
+                  R$ {caixa.totalDespesas.toFixed(2).replace('.', ',')}
                 </p>
               </div>
 
