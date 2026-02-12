@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Despesa, FiltroDespesa, RelatorioMensal, EntradaCaixa, CaixaMensal } from '../types/Despesa';
+import { caixaServiceSupabase } from './caixaServiceSupabase';
 
 // Normalize VITE_API_URL: ensure it always points to the API root including '/api'
 let API_URL = (import.meta as any).env?.VITE_API_URL as string | undefined;
@@ -95,37 +96,5 @@ export const despesaService = {
   }
 };
 
-export const caixaService = {
-  // Criar entrada de caixa
-  createEntrada: async (entrada: Omit<EntradaCaixa, 'id' | 'createdAt' | 'updatedAt' | 'mes' | 'ano'>): Promise<EntradaCaixa> => {
-    const response = await api.post<EntradaCaixa>('/caixa/entradas', entrada);
-    return response.data;
-  },
-
-  // Listar entradas
-  listEntradas: async (mes?: number, ano?: number): Promise<EntradaCaixa[]> => {
-    const response = await api.get<EntradaCaixa[]>('/caixa/entradas', {
-      params: { mes, ano }
-    });
-    return response.data;
-  },
-
-  // Obter caixa mensal
-  getCaixaMensal: async (mes: number, ano: number): Promise<CaixaMensal> => {
-    const response = await api.get<CaixaMensal>('/caixa/mensal', {
-      params: { mes, ano }
-    });
-    return response.data;
-  },
-
-  // Atualizar entrada
-  updateEntrada: async (id: number, entrada: Partial<EntradaCaixa>): Promise<EntradaCaixa> => {
-    const response = await api.put<EntradaCaixa>(`/caixa/entradas/${id}`, entrada);
-    return response.data;
-  },
-
-  // Excluir entrada
-  deleteEntrada: async (id: number): Promise<void> => {
-    await api.delete(`/caixa/entradas/${id}`);
-  }
-};
+// Usar Supabase para caixa (sem dependência de backend Express)
+export const caixaService = caixaServiceSupabase;
