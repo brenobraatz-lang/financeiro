@@ -4,7 +4,8 @@ import { Despesa, FiltroDespesa, RelatorioMensal, EntradaCaixa, CaixaMensal } fr
 // Normalize VITE_API_URL: ensure it always points to the API root including '/api'
 let API_URL = (import.meta as any).env?.VITE_API_URL as string | undefined;
 if (!API_URL) {
-  API_URL = 'http://localhost:3001/api';
+  // In production, default to same origin + /api (works when backend is served from same domain)
+  API_URL = `${window.location.origin}/api`;
 } else {
   API_URL = API_URL.replace(/\/+$/, '');
   if (!API_URL.endsWith('/api')) {

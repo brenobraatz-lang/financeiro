@@ -7,8 +7,10 @@ class SocketService {
   connect(): Socket {
     if (this.socket?.connected) return this.socket;
 
-    const serverUrl = `http://${window.location.hostname}:3001`;
-    
+    // Prefer explicit VITE_SOCKET_URL, otherwise use same-origin (preserves https/wss)
+    const envSocket = (import.meta as any).env?.VITE_SOCKET_URL as string | undefined;
+    const serverUrl = envSocket ? envSocket.replace(/\/+$/, '') : `${window.location.origin}`;
+
     this.socket = io(serverUrl, {
       reconnection: true,
       reconnectionDelay: 1000,
