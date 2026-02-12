@@ -2,6 +2,9 @@
   "version": 2,
   "routes": [
     { "handle": "filesystem" },
+    { "src": "/assets/(.*)", "dest": "/client/dist/assets/$1" },
+    { "src": "/logo.webp", "dest": "/client/dist/logo.webp" },
+    { "src": "/favicon.ico", "dest": "/client/dist/favicon.ico" },
     { "src": "/(.*)", "dest": "/client/dist/index.html" }
   ]
 }
