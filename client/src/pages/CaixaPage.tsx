@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { EntradaCaixa, CaixaMensal } from '../types/Despesa';
-import { caixaService, despesaService } from '../services/api';
+import { caixaService } from '../services/api';
+import { despesasService } from '../services/despesasService';
 import { useAuth } from '../contexts/AuthContext';
 import FormEntradaCaixa from '../components/FormEntradaCaixa';
 import FormDespesa from '../components/FormDespesa';
@@ -71,14 +72,14 @@ export default function CaixaPage() {
       // Buscar despesas via o mesmo serviço usado na página de Despesas (Supabase)
       let despesasDinheiro: any[] = [];
       try {
-        const todas = await despesaService.list();
+        const todas = await despesasService.list();
         // Filtrar por mês/ano e por DINHEIRO + PAGA
         despesasDinheiro = todas.filter(d => {
           const [anoD, mesD] = d.data.split('-');
           return parseInt(mesD) === mesLeitura && parseInt(anoD) === ano && d.formaPagamento === 'DINHEIRO' && d.statusPagamento === 'PAGA';
         });
       } catch (e) {
-        console.warn('Não foi possível buscar despesas via despesaService:', e);
+        console.warn('Não foi possível buscar despesas via despesasService:', e);
         despesasDinheiro = [];
       }
       
