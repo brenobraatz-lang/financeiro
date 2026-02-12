@@ -32,13 +32,11 @@ export const caixaServiceSupabase = {
 
       let entradas = (data as any[]) || [];
 
-      // Filtrar por mês/ano localmente (calcula a partir da data)
+      // Filtrar por mês/ano localmente (calcula a partir da data no formato YYYY-MM-DD)
       if (mes !== undefined && ano !== undefined) {
         entradas = entradas.filter(entrada => {
-          const dataObj = new Date(entrada.data);
-          const entradaMes = dataObj.getMonth() + 1;
-          const entradaAno = dataObj.getFullYear();
-          return entradaMes === mes && entradaAno === ano;
+          const [anoE, mesE] = entrada.data.split('-');
+          return parseInt(mesE) === mes && parseInt(anoE) === ano;
         });
       }
 
@@ -58,13 +56,11 @@ export const caixaServiceSupabase = {
 
       if (error) throw error;
 
-      // Filtrar e somar localmente
+      // Filtrar e somar localmente (usa string split para evitar problemas de timezone)
       const totalEntradas = (data || [])
         .filter(item => {
-          const dataObj = new Date(item.data);
-          const itemMes = dataObj.getMonth() + 1;
-          const itemAno = dataObj.getFullYear();
-          return itemMes === mes && itemAno === ano;
+          const [anoE, mesE] = item.data.split('-');
+          return parseInt(mesE) === mes && parseInt(anoE) === ano;
         })
         .reduce((sum, item) => sum + (item.valor || 0), 0);
 
