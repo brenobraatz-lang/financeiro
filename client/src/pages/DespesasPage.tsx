@@ -16,6 +16,7 @@ export default function DespesasPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingDespesa, setEditingDespesa] = useState<Despesa | undefined>();
   const [filtros, setFiltros] = useState<FiltroDespesa>({});
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const itensPorPagina = 10;
 
@@ -47,6 +48,10 @@ export default function DespesasPage() {
   useEffect(() => {
     aplicarFiltros();
   }, [despesas, filtros]);
+  
+  useEffect(() => {
+    aplicarFiltros();
+  }, [searchTerm]);
 
   const loadDespesas = async () => {
     setLoading(true);
@@ -98,6 +103,12 @@ export default function DespesasPage() {
 
     if (filtros.statusPagamento) {
       resultado = resultado.filter(d => d.statusPagamento === filtros.statusPagamento);
+    }
+
+    // Pesquisa por descrição (case-insensitive)
+    if (searchTerm && searchTerm.trim() !== '') {
+      const termo = searchTerm.trim().toLowerCase();
+      resultado = resultado.filter(d => (d.descricao || '').toLowerCase().includes(termo));
     }
 
     setDespesasFiltradas(resultado);
@@ -164,6 +175,8 @@ export default function DespesasPage() {
             filtros={filtros}
             onChange={setFiltros}
             onClear={() => setFiltros({})}
+            searchTerm={searchTerm}
+            onSearchChange={(v) => { setSearchTerm(v); setPaginaAtual(1); }}
           />
         </div>
 

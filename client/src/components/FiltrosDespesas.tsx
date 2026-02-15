@@ -1,14 +1,15 @@
 import { FiltroDespesa, TipoDespesa, LABEL_EMPRESA, LABEL_TIPO_DESPESA, LABEL_SUBCATEGORIA_IMOVEL, LABEL_STATUS, LABEL_FORMA_PAGAMENTO, BANCOS_FIXOS, SUBCATEGORIAS_IMOVEL } from '../types/Despesa';
-import YearPicker from './YearPicker';
 
 interface FiltrosDespesasProps {
   filtros: FiltroDespesa;
   opcoes?: { bancos: string[]; tiposDespesa: string[] };
   onChange: (filtros: FiltroDespesa) => void;
   onClear: () => void;
+  searchTerm?: string;
+  onSearchChange?: (v: string) => void;
 }
 
-export default function FiltrosDespesas({ filtros, onChange, onClear }: FiltrosDespesasProps) {
+export default function FiltrosDespesas({ filtros, onChange, onClear, searchTerm, onSearchChange }: FiltrosDespesasProps) {
   const meses = [
     { value: 1, label: 'Janeiro' },
     { value: 2, label: 'Fevereiro' },
@@ -73,7 +74,38 @@ export default function FiltrosDespesas({ filtros, onChange, onClear }: FiltrosD
           Anual
         </button>
       </div>
-
+      
+      {/* Barra de pesquisa — ocupa uma linha inteira entre Período e os filtros */}
+      <div style={{ width: '100%', marginTop: '1rem', marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <input
+            type="search"
+            placeholder="Pesquisar descrição..."
+            value={searchTerm || ''}
+            onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+            style={{
+              flex: 1,
+              padding: '0.6rem 0.75rem',
+              borderRadius: '6px',
+              border: '1px solid #ddd',
+              background: 'white',
+              fontSize: '14px'
+            }}
+          />
+          <button
+            onClick={() => onSearchChange && onSearchChange('')}
+            style={{
+              padding: '0.5rem 0.9rem',
+              borderRadius: '6px',
+              border: '1px solid #ddd',
+              background: 'white',
+              cursor: 'pointer'
+            }}
+          >
+            Limpar
+          </button>
+        </div>
+      </div>
       <div className="filtros-grid">
         {periodoAtual === 'mensal' && (
           <div className="filtro-item">
@@ -94,12 +126,17 @@ export default function FiltrosDespesas({ filtros, onChange, onClear }: FiltrosD
 
         <div className="filtro-item">
           <label htmlFor="filtro-ano">{periodoAtual === 'mensal' ? 'Ano' : 'Ano (Anual)'}</label>
-          <YearPicker
-            value={filtros.ano ?? null}
-            onChange={(y) => updateFilter('ano', y ?? null)}
-            years={anos}
-            allowEmpty
-          />
+          <select
+            id="filtro-ano"
+            aria-label="Selecionar ano"
+            value={filtros.ano || ''}
+            onChange={(e) => updateFilter('ano', e.target.value ? parseInt(e.target.value) : null)}
+          >
+            <option value="">Todos</option>
+            {anos.map((ano) => (
+              <option key={ano} value={ano}>{ano}</option>
+            ))}
+          </select>
         </div>
 
         <div className="filtro-item">
