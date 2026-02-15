@@ -4,6 +4,7 @@ import { despesasService } from '../services/despesasService';
 import { useAuth } from '../contexts/AuthContext';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { pageStyles } from '../styles/pageLayout';
+import YearPicker from '../components/YearPicker';
 
 export default function RelatoriosPage() {
   useAuth();
@@ -18,7 +19,7 @@ export default function RelatoriosPage() {
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
   ];
 
-  const anos = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
+  const anos = Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i);
 
   const gerarRelatorio = async () => {
     setLoading(true);
@@ -103,20 +104,7 @@ export default function RelatoriosPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <label style={{ fontWeight: 'bold', fontSize: '14px' }}>Ano</label>
-              <select 
-                value={ano} 
-                onChange={(e) => setAno(parseInt(e.target.value))}
-                style={{
-                  padding: '0.5rem',
-                  borderRadius: '4px',
-                  border: '1px solid #ddd',
-                  fontSize: '14px'
-                }}
-              >
-                {anos.map((anoOption) => (
-                  <option key={anoOption} value={anoOption}>{anoOption}</option>
-                ))}
-              </select>
+              <YearPicker value={ano} onChange={(y) => setAno(y ?? ano)} years={anos} />
             </div>
 
             <button 

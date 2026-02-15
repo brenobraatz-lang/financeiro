@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { despesasService } from '../services/despesasService';
 import { TipoEmpresa } from '../types/Despesa';
 import { pageStyles } from '../styles/pageLayout';
+import YearPicker from '../components/YearPicker';
 
 interface DashboardStats {
   totalGeral: number;
@@ -23,37 +24,41 @@ export default function DashboardPage() {
   const [tipoFiltro, setTipoFiltro] = useState<'Todos' | 'PF' | 'PJ' | 'Dinheiro'>('Todos');
 
   const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-  const anos = Array.from({ length: 5 }, (_, i) => ano - i);
+  const anos = Array.from({ length: 100 }, (_, i) => hoje.getFullYear() - i);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const mesLeitura = periodo === 'Mensal' ? mes : 1;
         const anoLeitura = ano;
-        
+        const mesLeitura = periodo === 'Mensal' ? mes : undefined;
+
         setMesAno(periodo === 'Mensal' 
-          ? `${meses[mesLeitura - 1]}/${anoLeitura}` 
+          ? `${meses[(mesLeitura as number) - 1]}/${anoLeitura}` 
           : `${anoLeitura}`
         );
 
-        const relatorio = await despesasService.relatorioMensal(mesLeitura, anoLeitura);
+        // Para anual precisamos carregar todas as despesas do ano; relatorioMensal fornece somente o mês
+        const despesasPromise = mesLeitura !== undefined
+          ? despesasService.relatorioMensal(mesLeitura, anoLeitura).then(r => r.despesas)
+          : despesasService.list();
+
+        let despesas = await despesasPromise;
 
         // Filtrar por período anual se necessário
-        let despesasFiltradas = relatorio.despesas;
         if (periodo === 'Anual') {
-          despesasFiltradas = relatorio.despesas.filter(d => {
+          despesas = despesas.filter(d => {
             const [anoD] = d.data.split('-');
             return parseInt(anoD) === anoLeitura;
           });
         }
 
         // Calcular totais por empresa
-        const pessoaFisica = despesasFiltradas.filter(d => d.empresa === TipoEmpresa.PESSOA_FISICA);
-        const pessoaJuridica = despesasFiltradas.filter(d => d.empresa === TipoEmpresa.PESSOA_JURIDICA);
-        const dinheiro = despesasFiltradas.filter(d => d.empresa === TipoEmpresa.DINHEIRO);
+        const pessoaFisica = despesas.filter(d => d.empresa === TipoEmpresa.PESSOA_FISICA);
+        const pessoaJuridica = despesas.filter(d => d.empresa === TipoEmpresa.PESSOA_JURIDICA);
+        const dinheiro = despesas.filter(d => d.empresa === TipoEmpresa.DINHEIRO);
 
         setStats({
-          totalGeral: despesasFiltradas.reduce((sum, d) => sum + d.valor, 0),
+          totalGeral: despesas.reduce((sum, d) => sum + d.valor, 0),
           pessoaFisica: {
             total: pessoaFisica.reduce((sum, d) => sum + d.valor, 0),
             count: pessoaFisica.length
@@ -122,20 +127,7 @@ export default function DashboardPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <label style={{ fontWeight: 'bold', fontSize: '14px' }}>Ano</label>
-            <select 
-              value={ano} 
-              onChange={(e) => setAno(parseInt(e.target.value))}
-              style={{
-                padding: '0.5rem',
-                borderRadius: '4px',
-                border: '1px solid #ddd',
-                fontSize: '14px'
-              }}
-            >
-              {anos.map((anoOption) => (
-                <option key={anoOption} value={anoOption}>{anoOption}</option>
-              ))}
-            </select>
+            <YearPicker value={ano} onChange={(y) => setAno(y ?? ano)} years={anos} />
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

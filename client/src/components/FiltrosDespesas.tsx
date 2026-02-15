@@ -1,4 +1,5 @@
 import { FiltroDespesa, TipoDespesa, LABEL_EMPRESA, LABEL_TIPO_DESPESA, LABEL_SUBCATEGORIA_IMOVEL, LABEL_STATUS, LABEL_FORMA_PAGAMENTO, BANCOS_FIXOS, SUBCATEGORIAS_IMOVEL } from '../types/Despesa';
+import YearPicker from './YearPicker';
 
 interface FiltrosDespesasProps {
   filtros: FiltroDespesa;
@@ -23,7 +24,7 @@ export default function FiltrosDespesas({ filtros, onChange, onClear }: FiltrosD
     { value: 12, label: 'Dezembro' }
   ];
 
-  const anos = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
+  const anos = Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i);
 
   const updateFilter = (key: keyof FiltroDespesa, value: any) => {
     const newFiltros = { ...filtros };
@@ -93,17 +94,12 @@ export default function FiltrosDespesas({ filtros, onChange, onClear }: FiltrosD
 
         <div className="filtro-item">
           <label htmlFor="filtro-ano">{periodoAtual === 'mensal' ? 'Ano' : 'Ano (Anual)'}</label>
-          <select
-            id="filtro-ano"
-            aria-label="Selecionar ano"
-            value={filtros.ano || ''}
-            onChange={(e) => updateFilter('ano', e.target.value ? parseInt(e.target.value) : null)}
-          >
-            <option value="">Todos</option>
-            {anos.map((ano) => (
-              <option key={ano} value={ano}>{ano}</option>
-            ))}
-          </select>
+          <YearPicker
+            value={filtros.ano ?? null}
+            onChange={(y) => updateFilter('ano', y ?? null)}
+            years={anos}
+            allowEmpty
+          />
         </div>
 
         <div className="filtro-item">

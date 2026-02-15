@@ -7,6 +7,7 @@ import FormEntradaCaixa from '../components/FormEntradaCaixa';
 import FormDespesa from '../components/FormDespesa';
 import { socketService } from '../services/socket';
 import { pageStyles } from '../styles/pageLayout';
+import YearPicker from '../components/YearPicker';
 
 export default function CaixaPage() {
   useAuth();
@@ -32,7 +33,7 @@ export default function CaixaPage() {
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
   ];
 
-  const anos = Array.from({ length: 5 }, (_, i) => ano - i);
+  const anos = Array.from({ length: 100 }, (_, i) => hoje.getFullYear() - i);
 
   useEffect(() => {
     loadDados();
@@ -63,11 +64,18 @@ export default function CaixaPage() {
     setLoading(true);
     setError(null);
     try {
-      const mesLeitura = periodo === 'Mensal' ? mes : 1;
-      const [entradasData, caixaData] = await Promise.all([
-        caixaService.listEntradas(mesLeitura, ano),
-        caixaService.getCaixaMensal(mesLeitura, ano)
-      ]);
+      // Para anual precisamos carregar todas as entradas e despesas do ano
+      const mesLeitura = periodo === 'Mensal' ? mes : undefined;
+      const entradasPromise = mesLeitura !== undefined
+        ? caixaService.listEntradas(mesLeitura, ano)
+        : caixaService.listEntradas();
+
+      // getCaixaMensal só faz sentido para consultas mensais; em anual calculamos localmente
+      const caixaPromise = mesLeitura !== undefined
+        ? caixaService.getCaixaMensal(mesLeitura, ano)
+        : Promise.resolve({ mes: 0, ano, totalEntradas: 0, totalDespesas: 0, saldo: 0 } as CaixaMensal);
+
+      const [entradasData, caixaData] = await Promise.all([entradasPromise, caixaPromise]);
       // Buscar despesas pagas em dinheiro para mostrar como saídas nas movimentações
       // Buscar despesas via o mesmo serviço usado na página de Despesas (Supabase)
       let despesasDinheiro: any[] = [];
@@ -76,7 +84,9 @@ export default function CaixaPage() {
         // Filtrar por mês/ano e por DINHEIRO + PAGA
         despesasDinheiro = todas.filter(d => {
           const [anoD, mesD] = d.data.split('-');
-          return parseInt(mesD) === mesLeitura && parseInt(anoD) === ano && d.formaPagamento === 'DINHEIRO' && d.statusPagamento === 'PAGA';
+          const anoOK = parseInt(anoD) === ano;
+          const mesOK = mesLeitura !== undefined ? parseInt(mesD) === mesLeitura : true;
+          return anoOK && mesOK && d.formaPagamento === 'DINHEIRO' && d.statusPagamento === 'PAGA';
         });
       } catch (e) {
         console.warn('Não foi possível buscar despesas via despesasService:', e);
@@ -92,13 +102,16 @@ export default function CaixaPage() {
           const [anoE] = e.data.split('-');
           return parseInt(anoE) === ano;
         });
-        // Calcular saldo anual
+        // Calcular saldo anual a partir das entradas/saídas filtradas
         const entradaAnual = entradasFiltradas.reduce((sum, e) => sum + e.valor, 0);
         caixaAcumulado = {
-          ...caixaData,
+          mes: 0,
+          ano,
           totalEntradas: entradaAnual,
-          saldo: entradaAnual - caixaData.totalDespesas
-        };
+          // totalDespesas será atualizado abaixo com as despesasDinheiro filtradas por ano
+          totalDespesas: caixaData.totalDespesas || 0,
+          saldo: entradaAnual - (caixaData.totalDespesas || 0)
+        } as CaixaMensal;
       }
       
       setEntradas(entradasFiltradas);
@@ -131,7 +144,7 @@ export default function CaixaPage() {
       // Atualizar caixa: calcular saídas a partir das despesas em dinheiro carregadas
       const totalSaidasLocal = despesasDinheiro.reduce((s: number, d: any) => s + (Number(d.valor) || 0), 0);
       caixaAcumulado = {
-        ...(caixaAcumulado || { mes: mesLeitura, ano, totalEntradas: 0, totalDespesas: 0, saldo: 0 }),
+        ...(caixaAcumulado || { mes: mesLeitura ?? 0, ano, totalEntradas: 0, totalDespesas: 0, saldo: 0 }),
         totalDespesas: Math.abs(totalSaidasLocal),
         saldo: (caixaAcumulado?.totalEntradas || 0) - Math.abs(totalSaidasLocal)
       } as CaixaMensal;
@@ -230,20 +243,7 @@ export default function CaixaPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <label style={{ fontWeight: 'bold', fontSize: '14px' }}>Ano</label>
-            <select 
-              value={ano} 
-              onChange={(e) => setAno(parseInt(e.target.value))}
-              style={{
-                padding: '0.5rem',
-                borderRadius: '4px',
-                border: '1px solid #ddd',
-                fontSize: '14px'
-              }}
-            >
-              {anos.map((anoOption) => (
-                <option key={anoOption} value={anoOption}>{anoOption}</option>
-              ))}
-            </select>
+            <YearPicker value={ano} onChange={(y) => setAno(y ?? ano)} years={anos} />
           </div>
 
           <button 
